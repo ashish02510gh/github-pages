@@ -460,7 +460,7 @@
         <div class="nav-grid">
             <!-- RBAC -->
             <div class="nav-card">
-                <a href="cloud-native-blogs/rbac_setup.html">
+                <a href="#rbac-section">
                     <div class="nav-card-icon"><i class="fas fa-user-lock"></i></div>
                     <h3>RBAC & Access Control</h3>
                     <p>Implement Role-Based Access Control to restrict cluster access. Define granular permissions for users, service accounts, and workloads.</p>
@@ -595,6 +595,186 @@
                 <li><i class="fas fa-check"></i> Implement runtime security monitoring with Falco or similar tools</li>
                 <li><i class="fas fa-check"></i> Backup etcd regularly and test disaster recovery procedures</li>
                 <li><i class="fas fa-check"></i> Conduct regular security audits and penetration testing</li>
+            </ul>
+        </div>
+
+        <!-- RBAC Detailed Section -->
+        <div id="rbac-section" class="intro-section" style="margin-top: 3rem;">
+            <h2><i class="fas fa-user-lock"></i> Role-Based Access Control (RBAC) - Detailed Guide</h2>
+            <p>
+                RBAC is a critical security mechanism in Kubernetes that allows you to control who can access what resources and perform which actions. 
+                This section provides a comprehensive guide to implementing RBAC in your cluster.
+            </p>
+        </div>
+
+        <!-- RBAC Steps -->
+        <div class="nav-grid" style="margin-top: 2rem;">
+            <div class="nav-card">
+                <div class="nav-card-icon"><i class="fas fa-users"></i></div>
+                <h3>1. Define Roles & Responsibilities</h3>
+                <p>
+                    • Identify teams and projects<br>
+                    • Specify access requirements for resources (Pods, Deployments, ConfigMaps)<br>
+                    • Group permissions into roles (developer, admin, viewer)
+                </p>
+            </div>
+
+            <div class="nav-card">
+                <div class="nav-card-icon"><i class="fas fa-boxes"></i></div>
+                <h3>2. Use Namespaces for Isolation</h3>
+                <p>
+                    • Create separate namespaces for each team/project<br>
+                    • Assign namespace-specific roles using Role and RoleBinding<br>
+                    • Isolate resources and access by default
+                </p>
+            </div>
+
+            <div class="nav-card">
+                <div class="nav-card-icon"><i class="fas fa-robot"></i></div>
+                <h3>3. Create Service Accounts</h3>
+                <p>
+                    • Assign service accounts to applications<br>
+                    • Create within relevant namespaces<br>
+                    • Better management and security tracking
+                </p>
+            </div>
+
+            <div class="nav-card">
+                <div class="nav-card-icon"><i class="fas fa-certificate"></i></div>
+                <h3>4. Define Roles & ClusterRoles</h3>
+                <p>
+                    • Use Role for namespace-scoped permissions<br>
+                    • Use ClusterRole for cluster-wide permissions<br>
+                    • Follow principle of least privilege
+                </p>
+            </div>
+
+            <div class="nav-card">
+                <div class="nav-card-icon"><i class="fas fa-link"></i></div>
+                <h3>5. Bind Roles to Users</h3>
+                <p>
+                    • Use RoleBinding for namespace assignments<br>
+                    • Use ClusterRoleBinding for cluster-wide roles<br>
+                    • Map subjects to roles explicitly
+                </p>
+            </div>
+
+            <div class="nav-card">
+                <div class="nav-card-icon"><i class="fas fa-shield"></i></div>
+                <h3>6. Implement Least Privilege</h3>
+                <p>
+                    • Grant only necessary permissions<br>
+                    • Periodically review and audit permissions<br>
+                    • Align with current business needs
+                </p>
+            </div>
+        </div>
+
+        <!-- RBAC Code Examples -->
+        <div class="intro-section" style="margin-top: 3rem;">
+            <h2><i class="fas fa-code"></i> RBAC YAML Configuration Examples</h2>
+        </div>
+
+        <div class="best-practices" style="background: linear-gradient(135deg, #dbeafe 0%, #ffffff 100%); border-left-color: var(--primary);">
+            <h3><i class="fas fa-code"></i> Developer Role (Namespace-Scoped)</h3>
+            <p style="font-family: 'JetBrains Mono', monospace; background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-top: 1rem;">
+apiVersion: rbac.authorization.k8s.io/v1<br>
+kind: Role<br>
+metadata:<br>
+&nbsp;&nbsp;namespace: dev-team<br>
+&nbsp;&nbsp;name: developer-role<br>
+rules:<br>
+- apiGroups: [""]<br>
+&nbsp;&nbsp;resources: ["pods", "services", "configmaps"]<br>
+&nbsp;&nbsp;verbs: ["get", "list", "create", "update", "delete"]<br>
+- apiGroups: ["apps"]<br>
+&nbsp;&nbsp;resources: ["deployments", "statefulsets"]<br>
+&nbsp;&nbsp;verbs: ["get", "list", "create", "update"]
+            </p>
+        </div>
+
+        <div class="best-practices" style="background: linear-gradient(135deg, #fef3c7 0%, #ffffff 100%); border-left-color: var(--warning);">
+            <h3><i class="fas fa-link"></i> RoleBinding for Developer Group</h3>
+            <p style="font-family: 'JetBrains Mono', monospace; background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-top: 1rem;">
+apiVersion: rbac.authorization.k8s.io/v1<br>
+kind: RoleBinding<br>
+metadata:<br>
+&nbsp;&nbsp;namespace: dev-team<br>
+&nbsp;&nbsp;name: developer-binding<br>
+subjects:<br>
+- kind: Group<br>
+&nbsp;&nbsp;name: dev-team-group<br>
+&nbsp;&nbsp;apiGroup: rbac.authorization.k8s.io<br>
+roleRef:<br>
+&nbsp;&nbsp;kind: Role<br>
+&nbsp;&nbsp;name: developer-role<br>
+&nbsp;&nbsp;apiGroup: rbac.authorization.k8s.io
+            </p>
+        </div>
+
+        <div class="best-practices" style="background: linear-gradient(135deg, #dcfce7 0%, #ffffff 100%); border-left-color: var(--success);">
+            <h3><i class="fas fa-crown"></i> ClusterRole for Admins (Cluster-Wide)</h3>
+            <p style="font-family: 'JetBrains Mono', monospace; background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-top: 1rem;">
+apiVersion: rbac.authorization.k8s.io/v1<br>
+kind: ClusterRole<br>
+metadata:<br>
+&nbsp;&nbsp;name: cluster-admin-role<br>
+rules:<br>
+- apiGroups: ["*"]<br>
+&nbsp;&nbsp;resources: ["*"]<br>
+&nbsp;&nbsp;verbs: ["*"]
+            </p>
+        </div>
+
+        <div class="best-practices" style="background: linear-gradient(135deg, #f3e8ff 0%, #ffffff 100%); border-left-color: #a855f7;">
+            <h3><i class="fas fa-robot"></i> ServiceAccount for Applications</h3>
+            <p style="font-family: 'JetBrains Mono', monospace; background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; overflow-x: auto; margin-top: 1rem;">
+apiVersion: v1<br>
+kind: ServiceAccount<br>
+metadata:<br>
+&nbsp;&nbsp;name: app-service-account<br>
+&nbsp;&nbsp;namespace: dev-team<br>
+---<br>
+apiVersion: rbac.authorization.k8s.io/v1<br>
+kind: Role<br>
+metadata:<br>
+&nbsp;&nbsp;namespace: dev-team<br>
+&nbsp;&nbsp;name: app-reader<br>
+rules:<br>
+- apiGroups: [""]<br>
+&nbsp;&nbsp;resources: ["configmaps", "secrets"]<br>
+&nbsp;&nbsp;verbs: ["get", "list"]<br>
+---<br>
+apiVersion: rbac.authorization.k8s.io/v1<br>
+kind: RoleBinding<br>
+metadata:<br>
+&nbsp;&nbsp;namespace: dev-team<br>
+&nbsp;&nbsp;name: app-reader-binding<br>
+subjects:<br>
+- kind: ServiceAccount<br>
+&nbsp;&nbsp;name: app-service-account<br>
+&nbsp;&nbsp;namespace: dev-team<br>
+roleRef:<br>
+&nbsp;&nbsp;kind: Role<br>
+&nbsp;&nbsp;name: app-reader<br>
+&nbsp;&nbsp;apiGroup: rbac.authorization.k8s.io
+            </p>
+        </div>
+
+        <!-- RBAC Best Practices -->
+        <div class="best-practices" style="margin-top: 3rem;">
+            <h3><i class="fas fa-lightbulb"></i> RBAC Best Practices & Tips</h3>
+            <ul>
+                <li><i class="fas fa-check"></i> Always start with the principle of least privilege</li>
+                <li><i class="fas fa-check"></i> Use namespaces to logically separate and isolate workloads</li>
+                <li><i class="fas fa-check"></i> Create roles specifically for your use cases—don't use cluster-admin for everything</li>
+                <li><i class="fas fa-check"></i> Regularly audit RBAC policies and remove unnecessary permissions</li>
+                <li><i class="fas fa-check"></i> Use service accounts for pod-to-pod authentication</li>
+                <li><i class="fas fa-check"></i> Implement group-based access controls for easier management</li>
+                <li><i class="fas fa-check"></i> Monitor and log all RBAC-related API requests using audit logging</li>
+                <li><i class="fas fa-check"></i> Test RBAC policies in a staging environment before production deployment</li>
+                <li><i class="fas fa-check"></i> Use tools like kubectl-who-can to audit permissions</li>
+                <li><i class="fas fa-check"></i> Document all roles and bindings for compliance and reference</li>
             </ul>
         </div>
     </main>
